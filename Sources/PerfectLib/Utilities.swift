@@ -273,51 +273,6 @@ extension String {
 	}
 }
 
-@available(*, deprecated, message: "Use Foundation.UUID")
-public struct UUID {
-	let uuid: uuid_t
-	
-	public init() {
-		let u = UnsafeMutablePointer<UInt8>.allocate(capacity:  MemoryLayout<uuid_t>.size)
-		defer {
-			u.deallocate()
-		}
-		uuid_generate_random(u)
-		uuid = UUID.uuidFromPointer(u)
-	}
-	
-	public init(_ string: String) {
-		let u = UnsafeMutablePointer<UInt8>.allocate(capacity:  MemoryLayout<uuid_t>.size)
-		defer {
-			u.deallocate()
-		}
-		uuid_parse(string, u)
-		uuid = UUID.uuidFromPointer(u)
-	}
-	
-	init(_ uuid: uuid_t) {
-		self.uuid = uuid
-	}
-	
-	private static func uuidFromPointer(_ u: UnsafeMutablePointer<UInt8>) -> uuid_t {
-		// is there a better way?
-		return uuid_t(u[0], u[1], u[2], u[3], u[4], u[5], u[6], u[7], u[8], u[9], u[10], u[11], u[12], u[13], u[14], u[15])
-	}
-	
-	public var string: String {
-		let u = UnsafeMutablePointer<UInt8>.allocate(capacity:  MemoryLayout<uuid_t>.size)
-		let unu = UnsafeMutablePointer<Int8>.allocate(capacity:  37) // as per spec. 36 + null
-		defer {
-			u.deallocate()
-			unu.deallocate()
-		}
-		var uu = uuid
-		memcpy(u, &uu, MemoryLayout<uuid_t>.size)
-		uuid_unparse_lower(u, unu)
-		return String(validatingUTF8: unu)!
-	}
-}
-
 extension String {
 	
 	/// Parse an HTTP Digest authentication header returning a Dictionary containing each part.
